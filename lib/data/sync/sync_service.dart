@@ -8,6 +8,8 @@ import '../../domain/entities/note.dart';
 import '../local/notes_local_data_source.dart';
 import '../remote/notes_remote_data_source.dart';
 
+enum SyncState { idle, syncing, error }
+
 class SyncService {
   SyncService({
     required NotesLocalDataSource localDataSource,
@@ -20,10 +22,14 @@ class SyncService {
   final NotesLocalDataSource _localDataSource;
   final NotesRemoteDataSource _remoteDataSource;
   final Connectivity _connectivity;
+  final StreamController<SyncState> _statusController =
+      StreamController<SyncState>.broadcast();
 
   StreamSubscription<List<ConnectivityResult>>? _subscription;
   bool _wasConnected = false;
   int _lastSyncedAtMillis = 0;
+
+  Stream<SyncState> get statusStream => _statusController.stream;
 
   void start() {
     _subscription = _connectivity.onConnectivityChanged.listen(
@@ -33,6 +39,7 @@ class SyncService {
 
   void dispose() {
     _subscription?.cancel();
+    _statusController.close();
   }
 
   void _onConnectivityChanged(List<ConnectivityResult> results) {
@@ -48,6 +55,7 @@ class SyncService {
   }
 
   Future<Result<void>> syncOnce() async {
+    _statusController.add(SyncState.syncing);
     try {
       final pendingNotes = await _localDataSource.getPendingNotes();
 
@@ -73,8 +81,10 @@ class SyncService {
       }
 
       _lastSyncedAtMillis = DateTime.now().toUtc().millisecondsSinceEpoch;
+      _statusController.add(SyncState.idle);
       return const Success(null);
     } catch (_) {
+      _statusController.add(SyncState.error);
       return const Error(SyncFailure('Failed to sync notes.'));
     }
   }

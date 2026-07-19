@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'data/local/app_database.dart';
 import 'firebase_options.dart';
 import 'presentation/router/app_router.dart';
 
@@ -12,15 +12,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final database = AppDatabase();
-
-  runApp(OfflineNotesSyncApp(database: database));
+  runApp(const ProviderScope(child: OfflineNotesSyncApp()));
 }
 
 class OfflineNotesSyncApp extends StatelessWidget {
-  const OfflineNotesSyncApp({super.key, required this.database});
-
-  final AppDatabase database;
+  const OfflineNotesSyncApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,3 +29,4 @@ class OfflineNotesSyncApp extends StatelessWidget {
     );
   }
 }
+

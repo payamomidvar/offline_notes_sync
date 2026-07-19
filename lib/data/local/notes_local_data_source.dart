@@ -8,9 +8,7 @@ class NotesLocalDataSource {
   final NotesDao _dao;
 
   Stream<List<Note>> watchNotes() {
-    return _dao.watchAllNotes().map(
-      (rows) => rows.map(_toEntity).toList(),
-    );
+    return _dao.watchAllNotes().map((rows) => rows.map(_toEntity).toList());
   }
 
   Future<void> upsertNote(Note note) {
@@ -19,6 +17,11 @@ class NotesLocalDataSource {
 
   Future<void> deleteNote(String id) {
     return _dao.deleteNoteById(id);
+  }
+
+  Future<List<Note>> getPendingNotes() async {
+    final rows = await _dao.getPendingNotes();
+    return rows.map(_toEntity).toList();
   }
 
   Note _toEntity(NoteRow row) {

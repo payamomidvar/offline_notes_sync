@@ -17,4 +17,11 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   Future<void> deleteNoteById(String id) {
     return (delete(notesTable)..where((tbl) => tbl.id.equals(id))).go();
   }
+
+  // Must match SyncStatus.pending.name from the mapping layer.
+  Future<List<NoteRow>> getPendingNotes() {
+    return (select(
+      notesTable,
+    )..where((tbl) => tbl.syncStatus.equals('pending'))).get();
+  }
 }

@@ -9,6 +9,10 @@ import '../../data/sync/sync_service.dart';
 import '../../domain/entities/note.dart';
 import '../../domain/repositories/notes_repository.dart';
 import '../../domain/usecases/watch_notes.dart';
+import '../../domain/usecases/add_note.dart';
+import '../../domain/usecases/update_note.dart';
+import '../../domain/usecases/delete_note.dart';
+
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   ref.keepAlive();
@@ -50,6 +54,22 @@ final watchNotesProvider = Provider<WatchNotes>((ref) {
   ref.keepAlive();
   return WatchNotes(ref.watch(notesRepositoryProvider));
 });
+
+final addNoteProvider = Provider<AddNote>((ref) {
+  ref.keepAlive();
+  return AddNote(ref.watch(notesRepositoryProvider));
+});
+
+final updateNoteProvider = Provider<UpdateNote>((ref) {
+  ref.keepAlive();
+  return UpdateNote(ref.watch(notesRepositoryProvider));
+});
+
+final deleteNoteProvider = Provider<DeleteNote>((ref) {
+  ref.keepAlive();
+  return DeleteNote(ref.watch(notesRepositoryProvider));
+});
+
 
 class NotesNotifier extends StreamNotifier<List<Note>> {
   @override

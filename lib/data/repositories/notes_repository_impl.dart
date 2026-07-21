@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../../domain/core/failure.dart';
 import '../../domain/core/result.dart';
 import '../../domain/entities/note.dart';
@@ -9,9 +11,9 @@ class NotesRepositoryImpl implements NotesRepository {
   NotesRepositoryImpl({
     required NotesLocalDataSource localDataSource,
     required SyncService syncService,
-  }) : _localDataSource = localDataSource,// ignore: prefer_initializing_formals
+  }) : _localDataSource = localDataSource, // ignore: prefer_initializing_formals
        _syncService = syncService // ignore: prefer_initializing_formals
-       {
+        {
     _syncService.start();
   }
 
@@ -31,6 +33,7 @@ class NotesRepositoryImpl implements NotesRepository {
   Future<Result<void>> deleteNote(String id) async {
     try {
       await _localDataSource.deleteNote(id);
+      unawaited(_syncService.deleteRemoteIfConnected(id));
       return const Success(null);
     } catch (_) {
       return const Error(CacheFailure('Failed to delete note.'));
@@ -45,6 +48,7 @@ class NotesRepositoryImpl implements NotesRepository {
       await _localDataSource.upsertNote(
         note.copyWith(syncStatus: SyncStatus.pending),
       );
+      unawaited(_syncService.syncIfConnected());
       return const Success(null);
     } catch (_) {
       return const Error(CacheFailure('Failed to save note.'));

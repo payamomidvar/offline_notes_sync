@@ -33,6 +33,7 @@ class NotesRemoteDataSource {
       'batteryAtCreation': note.batteryAtCreation,
       'createdAt': note.createdAt.toUtc().millisecondsSinceEpoch,
       'updatedAt': note.updatedAt.toUtc().millisecondsSinceEpoch,
+      'isDeleted': note.isDeleted,
     };
   }
 
@@ -51,6 +52,7 @@ class NotesRemoteDataSource {
         isUtc: true,
       ),
       syncStatus: SyncStatus.synced,
+      isDeleted: data['isDeleted'] as bool? ?? false,
     );
   }
 }

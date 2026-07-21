@@ -11,6 +11,7 @@ class Note extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.syncStatus,
+    this.isDeleted = false,
   });
 
   final String id;
@@ -20,12 +21,14 @@ class Note extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final SyncStatus syncStatus;
+  final bool isDeleted;
 
   Note copyWith({
     String? title,
     String? body,
     DateTime? updatedAt,
     SyncStatus? syncStatus,
+    bool? isDeleted,
   }) {
     return Note(
       id: id,
@@ -35,6 +38,7 @@ class Note extends Equatable {
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
@@ -47,5 +51,6 @@ class Note extends Equatable {
     createdAt,
     updatedAt,
     syncStatus,
+    isDeleted,
   ];
 }

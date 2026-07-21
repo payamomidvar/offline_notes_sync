@@ -80,6 +80,21 @@ class $NotesTableTable extends NotesTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -89,6 +104,7 @@ class $NotesTableTable extends NotesTable
     createdAt,
     updatedAt,
     syncStatus,
+    isDeleted,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -156,6 +172,12 @@ class $NotesTableTable extends NotesTable
     } else if (isInserting) {
       context.missing(_syncStatusMeta);
     }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
     return context;
   }
 
@@ -193,6 +215,10 @@ class $NotesTableTable extends NotesTable
         DriftSqlType.string,
         data['${effectivePrefix}sync_status'],
       )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
     );
   }
 
@@ -210,6 +236,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
   final int createdAt;
   final int updatedAt;
   final String syncStatus;
+  final bool isDeleted;
   const NoteRow({
     required this.id,
     required this.title,
@@ -218,6 +245,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     required this.createdAt,
     required this.updatedAt,
     required this.syncStatus,
+    required this.isDeleted,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -231,6 +259,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
     map['sync_status'] = Variable<String>(syncStatus);
+    map['is_deleted'] = Variable<bool>(isDeleted);
     return map;
   }
 
@@ -245,6 +274,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       syncStatus: Value(syncStatus),
+      isDeleted: Value(isDeleted),
     );
   }
 
@@ -261,6 +291,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
       createdAt: serializer.fromJson<int>(json['createdAt']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
       syncStatus: serializer.fromJson<String>(json['syncStatus']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
     );
   }
   @override
@@ -274,6 +305,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
       'createdAt': serializer.toJson<int>(createdAt),
       'updatedAt': serializer.toJson<int>(updatedAt),
       'syncStatus': serializer.toJson<String>(syncStatus),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
     };
   }
 
@@ -285,6 +317,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     int? createdAt,
     int? updatedAt,
     String? syncStatus,
+    bool? isDeleted,
   }) => NoteRow(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -295,6 +328,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    isDeleted: isDeleted ?? this.isDeleted,
   );
   NoteRow copyWithCompanion(NotesTableCompanion data) {
     return NoteRow(
@@ -309,6 +343,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
       syncStatus: data.syncStatus.present
           ? data.syncStatus.value
           : this.syncStatus,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
     );
   }
 
@@ -321,7 +356,8 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
           ..write('batteryAtCreation: $batteryAtCreation, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('syncStatus: $syncStatus')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('isDeleted: $isDeleted')
           ..write(')'))
         .toString();
   }
@@ -335,6 +371,7 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
     createdAt,
     updatedAt,
     syncStatus,
+    isDeleted,
   );
   @override
   bool operator ==(Object other) =>
@@ -346,7 +383,8 @@ class NoteRow extends DataClass implements Insertable<NoteRow> {
           other.batteryAtCreation == this.batteryAtCreation &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.syncStatus == this.syncStatus);
+          other.syncStatus == this.syncStatus &&
+          other.isDeleted == this.isDeleted);
 }
 
 class NotesTableCompanion extends UpdateCompanion<NoteRow> {
@@ -357,6 +395,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
   final Value<int> createdAt;
   final Value<int> updatedAt;
   final Value<String> syncStatus;
+  final Value<bool> isDeleted;
   final Value<int> rowid;
   const NotesTableCompanion({
     this.id = const Value.absent(),
@@ -366,6 +405,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NotesTableCompanion.insert({
@@ -376,6 +416,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
     required int createdAt,
     required int updatedAt,
     required String syncStatus,
+    this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -391,6 +432,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
     Expression<String>? syncStatus,
+    Expression<bool>? isDeleted,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -401,6 +443,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (isDeleted != null) 'is_deleted': isDeleted,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -413,6 +456,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
     Value<int>? createdAt,
     Value<int>? updatedAt,
     Value<String>? syncStatus,
+    Value<bool>? isDeleted,
     Value<int>? rowid,
   }) {
     return NotesTableCompanion(
@@ -423,6 +467,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      isDeleted: isDeleted ?? this.isDeleted,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -451,6 +496,9 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
     if (syncStatus.present) {
       map['sync_status'] = Variable<String>(syncStatus.value);
     }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -467,6 +515,7 @@ class NotesTableCompanion extends UpdateCompanion<NoteRow> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -494,6 +543,7 @@ typedef $$NotesTableTableCreateCompanionBuilder =
       required int createdAt,
       required int updatedAt,
       required String syncStatus,
+      Value<bool> isDeleted,
       Value<int> rowid,
     });
 typedef $$NotesTableTableUpdateCompanionBuilder =
@@ -505,6 +555,7 @@ typedef $$NotesTableTableUpdateCompanionBuilder =
       Value<int> createdAt,
       Value<int> updatedAt,
       Value<String> syncStatus,
+      Value<bool> isDeleted,
       Value<int> rowid,
     });
 
@@ -549,6 +600,11 @@ class $$NotesTableTableFilterComposer
 
   ColumnFilters<String> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -596,6 +652,11 @@ class $$NotesTableTableOrderingComposer
     column: $table.syncStatus,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$NotesTableTableAnnotationComposer
@@ -631,6 +692,9 @@ class $$NotesTableTableAnnotationComposer
     column: $table.syncStatus,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 }
 
 class $$NotesTableTableTableManager
@@ -668,6 +732,7 @@ class $$NotesTableTableTableManager
                 Value<int> createdAt = const Value.absent(),
                 Value<int> updatedAt = const Value.absent(),
                 Value<String> syncStatus = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotesTableCompanion(
                 id: id,
@@ -677,6 +742,7 @@ class $$NotesTableTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 syncStatus: syncStatus,
+                isDeleted: isDeleted,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -688,6 +754,7 @@ class $$NotesTableTableTableManager
                 required int createdAt,
                 required int updatedAt,
                 required String syncStatus,
+                Value<bool> isDeleted = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => NotesTableCompanion.insert(
                 id: id,
@@ -697,6 +764,7 @@ class $$NotesTableTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 syncStatus: syncStatus,
+                isDeleted: isDeleted,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

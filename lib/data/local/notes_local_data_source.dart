@@ -39,6 +39,7 @@ class NotesLocalDataSource {
         isUtc: true,
       ),
       syncStatus: SyncStatus.values.byName(row.syncStatus),
+      isDeleted: row.isDeleted,
     );
   }
 
@@ -51,6 +52,7 @@ class NotesLocalDataSource {
       createdAt: note.createdAt.toUtc().millisecondsSinceEpoch,
       updatedAt: note.updatedAt.toUtc().millisecondsSinceEpoch,
       syncStatus: note.syncStatus.name,
+      isDeleted: note.isDeleted,
     );
   }
 }

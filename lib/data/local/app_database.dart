@@ -28,6 +28,8 @@ class NotesTable extends Table {
 
   TextColumn get syncStatus => text()();
 
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -37,7 +39,17 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(notesTable, notesTable.isDeleted);
+      }
+    },
+  );
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(() async {
@@ -47,4 +59,3 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 }
-

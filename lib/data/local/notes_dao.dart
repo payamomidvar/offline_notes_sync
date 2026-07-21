@@ -8,7 +8,11 @@ part 'notes_dao.g.dart';
 class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
   NotesDao(super.db);
 
-  Stream<List<NoteRow>> watchAllNotes() => select(notesTable).watch();
+  Stream<List<NoteRow>> watchAllNotes() {
+    return (select(
+      notesTable,
+    )..where((tbl) => tbl.isDeleted.equals(false))).watch();
+  }
 
   Future<void> upsertNote(NoteRow note) {
     return into(notesTable).insertOnConflictUpdate(note);

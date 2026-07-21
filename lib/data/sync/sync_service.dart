@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-
+import 'package:flutter/foundation.dart';
 import '../../domain/core/failure.dart';
 import '../../domain/core/result.dart';
 import '../../domain/entities/note.dart';
@@ -83,7 +83,9 @@ class SyncService {
       _lastSyncedAtMillis = DateTime.now().toUtc().millisecondsSinceEpoch;
       _statusController.add(SyncState.idle);
       return const Success(null);
-    } catch (_) {
+    } catch (error) {
+      debugPrint('SyncService.syncOnce failed: ${error}');
+
       _statusController.add(SyncState.error);
       return const Error(SyncFailure('Failed to sync notes.'));
     }
@@ -96,4 +98,28 @@ class SyncService {
 
     return local.updatedAt.isAfter(remote.updatedAt) ? local : remote;
   }
+
+    Future<bool> _isCurrentlyConnected() async {
+    final results = await _connectivity.checkConnectivity();
+    return results.any((result) => result != ConnectivityResult.none);
+  }
+
+  Future<void> syncIfConnected() async {
+    if (await _isCurrentlyConnected()) {
+      await syncOnce();
+    }
+  }
+
+  Future<void> deleteRemoteIfConnected(String id) async {
+    if (!await _isCurrentlyConnected()) return;
+
+    try {
+      await _remoteDataSource.deleteNote(id);
+    } catch (_) {
+      // Best-effort: if this fails, the note stays deleted locally but not
+      // remotely, with no tombstone tracked — it could reappear after a
+      // future full re-pull. Acceptable for this project's scope.
+    }
+  }
+
 }

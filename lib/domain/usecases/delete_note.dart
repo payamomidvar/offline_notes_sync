@@ -1,4 +1,5 @@
 import '../core/result.dart';
+import '../entities/note.dart';
 import '../repositories/notes_repository.dart';
 
 class DeleteNote {
@@ -6,7 +7,7 @@ class DeleteNote {
 
   final NotesRepository _repository;
 
-  Future<Result<void>> call(String id) {
-    return _repository.deleteNote(id);
+  Future<Result<void>> call(Note note) {
+    return _repository.deleteNote(note);
   }
 }

@@ -8,7 +8,8 @@ abstract class NotesRepository {
 
   Future<Result<void>> updateNote(Note note);
 
-  Future<Result<void>> deleteNote(String id);
+  Future<Result<void>> deleteNote(Note note);
 
   Future<Result<void>> syncNotes();
 }
+

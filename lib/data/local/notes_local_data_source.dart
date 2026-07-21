@@ -15,10 +15,6 @@ class NotesLocalDataSource {
     return _dao.upsertNote(_toRow(note));
   }
 
-  Future<void> deleteNote(String id) {
-    return _dao.deleteNoteById(id);
-  }
-
   Future<List<Note>> getPendingNotes() async {
     final rows = await _dao.getPendingNotes();
     return rows.map(_toEntity).toList();

@@ -30,14 +30,8 @@ class NotesRepositoryImpl implements NotesRepository {
   Future<Result<void>> updateNote(Note note) => _writeLocally(note);
 
   @override
-  Future<Result<void>> deleteNote(String id) async {
-    try {
-      await _localDataSource.deleteNote(id);
-      unawaited(_syncService.deleteRemoteIfConnected(id));
-      return const Success(null);
-    } catch (_) {
-      return const Error(CacheFailure('Failed to delete note.'));
-    }
+  Future<Result<void>> deleteNote(Note note) {
+    return _writeLocally(note.copyWith(isDeleted: true));
   }
 
   @override
@@ -46,7 +40,10 @@ class NotesRepositoryImpl implements NotesRepository {
   Future<Result<void>> _writeLocally(Note note) async {
     try {
       await _localDataSource.upsertNote(
-        note.copyWith(syncStatus: SyncStatus.pending),
+        note.copyWith(
+          syncStatus: SyncStatus.pending,
+          updatedAt: DateTime.now().toUtc(),
+        ),
       );
       unawaited(_syncService.syncIfConnected());
       return const Success(null);

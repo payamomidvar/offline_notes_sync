@@ -22,10 +22,6 @@ class NotesRemoteDataSource {
     return snapshot.docs.map((doc) => _toEntity(doc.id, doc.data())).toList();
   }
 
-  Future<void> deleteNote(String id) {
-    return _notesCollection.doc(id).delete();
-  }
-
   Map<String, dynamic> _toDocument(Note note) {
     return {
       'title': note.title,

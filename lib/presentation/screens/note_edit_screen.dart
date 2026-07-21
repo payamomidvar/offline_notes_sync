@@ -74,7 +74,7 @@ class _NoteEditScreenState extends ConsumerState<NoteEditScreen> {
     final note = _existingNote;
     if (note == null) return;
 
-    await ref.read(deleteNoteProvider)(note.id);
+    await ref.read(deleteNoteProvider)(note);
 
     if (mounted) {
       context.pop();

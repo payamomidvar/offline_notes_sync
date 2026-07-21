@@ -47,7 +47,7 @@ class NotesListScreen extends ConsumerWidget {
                     return _NoteCard(
                       note: note,
                       onTap: () => context.push('/notes/${note.id}/edit'),
-                      onDelete: () => ref.read(deleteNoteProvider)(note.id),
+                      onDelete: () => ref.read(deleteNoteProvider)(note),
                     );
                   },
                 ),

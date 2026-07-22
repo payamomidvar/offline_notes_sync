@@ -18,6 +18,12 @@ class NotesDao extends DatabaseAccessor<AppDatabase> with _$NotesDaoMixin {
     return into(notesTable).insertOnConflictUpdate(note);
   }
 
+  Future<void> upsertNotes(List<NoteRow> notes) {
+    return batch((b) {
+      b.insertAllOnConflictUpdate(notesTable, notes);
+    });
+  }
+
   // Must match SyncStatus.pending.name from the mapping layer.
   Future<List<NoteRow>> getPendingNotes() {
     return (select(

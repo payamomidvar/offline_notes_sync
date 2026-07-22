@@ -16,7 +16,7 @@ class SyncService {
     required NotesLocalDataSource localDataSource,
     required NotesRemoteDataSource remoteDataSource,
     Connectivity? connectivity,
-  }) : _localDataSource = localDataSource, // ignore: prefer_initializing_formals
+  }) : _localDataSource =localDataSource, // ignore: prefer_initializing_formals
        _remoteDataSource = remoteDataSource, // ignore: prefer_initializing_formals
        _connectivity = connectivity ?? Connectivity();
 
@@ -71,14 +71,13 @@ class SyncService {
     try {
       final pendingNotes = await _localDataSource.getPendingNotes();
 
+      final pushedById = <String, Note>{};
       for (final note in pendingNotes) {
         await _remoteDataSource.pushNote(note);
-        await _localDataSource.upsertNote(
-          note.copyWith(syncStatus: SyncStatus.synced),
-        );
+        final synced = note.copyWith(syncStatus: SyncStatus.synced);
+        await _localDataSource.upsertNote(synced);
+        pushedById[note.id] = synced;
       }
-
-      final pendingById = {for (final note in pendingNotes) note.id: note};
 
       final remoteNotes = await _remoteDataSource.pullNotesUpdatedAfter(
         _lastSyncedAtMillis,
@@ -86,7 +85,7 @@ class SyncService {
 
       for (final remoteNote in remoteNotes) {
         final winner = _resolveConflict(
-          local: pendingById[remoteNote.id],
+          local: pushedById[remoteNote.id],
           remote: remoteNote,
         );
         await _localDataSource.upsertNote(winner);

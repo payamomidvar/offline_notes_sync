@@ -38,6 +38,8 @@ class NotesTable extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  AppDatabase.forTesting(super.executor);
+  
   @override
   int get schemaVersion => 2;
 

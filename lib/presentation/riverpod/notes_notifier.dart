@@ -12,7 +12,7 @@ import '../../domain/usecases/watch_notes.dart';
 import '../../domain/usecases/add_note.dart';
 import '../../domain/usecases/update_note.dart';
 import '../../domain/usecases/delete_note.dart';
-
+import '../../data/local/debug_seed.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   ref.keepAlive();
@@ -69,6 +69,12 @@ final deleteNoteProvider = Provider<DeleteNote>((ref) {
   ref.keepAlive();
   return DeleteNote(ref.watch(notesRepositoryProvider));
 });
+
+final debugSeedNotesProvider = Provider<Future<void> Function()>((ref) {
+  final dao = ref.watch(appDatabaseProvider).notesDao;
+  return () => seedDebugNotes(dao);
+});
+
 
 
 class NotesNotifier extends StreamNotifier<List<Note>> {

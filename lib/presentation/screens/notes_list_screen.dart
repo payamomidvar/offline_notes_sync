@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../data/sync/sync_service.dart';
 import '../../domain/entities/note.dart';
@@ -21,6 +22,19 @@ class NotesListScreen extends ConsumerWidget {
           SliverAppBar.large(
             title: const Text('Notes'),
             actions: [
+              if (kDebugMode)
+                IconButton(
+                  tooltip: 'Seed 500 notes (debug)',
+                  icon: const Icon(Icons.science_outlined),
+                  onPressed: () async {
+                    await ref.read(debugSeedNotesProvider)();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Seeded 500 notes')),
+                      );
+                    }
+                  },
+                ),
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: Center(child: _SyncBadge(state: syncState)),
